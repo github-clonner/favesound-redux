@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { SORT_FUNCTIONS } from '../../constants/sort';
+import { SORT_FUNCTIONS, DATE_SORT_FUNCTIONS } from '../../constants/sort';
 import { DURATION_FILTER_FUNCTIONS } from '../../constants/durationFilter';
 import * as actions from '../../actions/index';
 import * as requestTypes from '../../constants/requestTypes';
@@ -10,7 +10,8 @@ import StreamInteractions from '../../components/StreamInteractions';
 import Activities from '../../components/Activities';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { getTracknameFilter } from '../../constants/nameFilter';
-import { getAndCombined } from '../../services/filter';
+import { getAndCombined, getOrCombined } from '../../services/filter';
+import { getArtistFilter } from "../../constants/artistFilter";
 
 class Browse extends React.Component {
   constructor(props) {
@@ -61,7 +62,8 @@ class Browse extends React.Component {
   }
 
   render() {
-    const { browseActivities, match, requestsInProcess, trackEntities, activeFilter, activeSort } = this.props;
+    const { browseActivities, match, requestsInProcess, trackEntities,
+      activeFilter, activeSort, activeDateSort } = this.props;
     const genre = match.params.genre;
     return (
       <div className="browse">
@@ -72,6 +74,7 @@ class Browse extends React.Component {
           entities={trackEntities}
           activeFilter={activeFilter}
           activeSort={activeSort}
+          activeDateSort={activeDateSort}
           scrollFunction={this.fetchActivitiesByGenre}
         />
         <LoadingSpinner isLoading={!!(requestsInProcess[requestTypes.GENRES] && browseActivities[genre])} />
@@ -82,9 +85,12 @@ class Browse extends React.Component {
 }
 
 function mapStateToProps(state) {
+  const queryFilters = [getTracknameFilter(state.filter.filterNameQuery),
+    getArtistFilter(state.filter.filterNameQuery, state.entities.users)];
+
   const filters = [
     DURATION_FILTER_FUNCTIONS[state.filter.durationFilterType],
-    getTracknameFilter(state.filter.filterNameQuery)
+    getOrCombined(queryFilters)
   ];
 
   return {
@@ -95,6 +101,7 @@ function mapStateToProps(state) {
     userEntities: state.entities.users,
     activeFilter: getAndCombined(filters),
     activeSort: SORT_FUNCTIONS[state.sort.sortType],
+    activeDateSort: DATE_SORT_FUNCTIONS[state.sort.dateSortType],
   };
 }
 

@@ -17,9 +17,16 @@ function getGenreLink(genre) {
 function Logo() {
   return (
     <div>
-      <Link to="/">
-        <h1>Favesound</h1>
-      </Link>
+      <div className="logo">
+        <Link to="/">
+          <h1>Favesound</h1>
+        </Link>
+      </div>
+      <div className="github-link">
+        <Link to="https://github.com/rwieruch/favesound-redux/" target="_blank">
+          <p>Fork Me on Github</p>
+        </Link>
+      </div>
     </div>
   );
 }
@@ -52,10 +59,23 @@ function Logout({ onLogout }) {
   );
 }
 
+function Dashboard() {
+  return (
+    <Link to={dashboard}>
+      Dashboard
+    </Link>
+  );
+}
+
 function SessionAction({ currentUser, onLogin, onLogout }) {
   return (
     <div>
-      { currentUser ? <Logout onLogout={onLogout} /> : <Login onLogin={onLogin} /> }
+      <div className="dashboard-link">
+        { currentUser ? <Dashboard /> : ' ' }
+      </div>
+      <div className="session-link">
+        { currentUser ? <Logout onLogout={onLogout} /> : <Login onLogin={onLogin} /> }
+      </div>
     </div>
   );
 }
@@ -78,7 +98,11 @@ function Header({ currentUser, selectedGenre, onLogin, onLogout }) {
       <div className="header-content">
         <Logo />
         <MenuList selectedGenre={selectedGenre} />
-        <SessionAction currentUser={currentUser} onLogin={onLogin} onLogout={onLogout} />
+        <SessionAction
+          currentUser={currentUser}
+          onLogin={onLogin}
+          onLogout={onLogout}
+        />
       </div>
     </div>
   );

@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import classNames from 'classnames';
 import * as sortTypes from '../../constants/sortTypes';
+import * as dateSortTypes from '../../constants/dateSortTypes';
 import * as filterTypes from '../../constants/filterTypes';
 import WaveformSc from '../../components/WaveformSc';
 import TrackActions from '../../components/TrackActions';
@@ -12,6 +13,7 @@ import InfoList from '../../components/InfoList';
 import { durationFormat, fromNow } from '../../services/track';
 import { getPluralizedWithCount } from '../../services/pluralize';
 import { isSameTrackAndPlaying, isSameTrack } from '../../services/player';
+import * as attributes from "../../constants/trackAttributes";
 
 function Duration({ duration, isActive }) {
   const durationClass = classNames({
@@ -25,6 +27,18 @@ function Duration({ duration, isActive }) {
   );
 }
 
+function Created({ created_at, isActive }) {
+  const durationClass = classNames({
+    'active-duration-filter': isActive
+  });
+
+  return (
+    <span className={durationClass}>
+     {fromNow(created_at)}
+    </span>
+  );
+}
+
 function TrackStream({
   activity,
   activeTrackId,
@@ -33,6 +47,7 @@ function TrackStream({
   typeReposts,
   typeTracks,
   activeSortType,
+  activeDateSortType,
   activeDurationFilterType,
   onActivateTrack,
 }) {
@@ -49,7 +64,6 @@ function TrackStream({
     permalink_url,
     created_at
   } = activity;
-
   const userEntity = userEntities[user];
   const { avatar_url, username } = userEntity;
 
@@ -75,25 +89,30 @@ function TrackStream({
     {
       className: 'fa fa-play',
       count: playback_count,
-      activeSort: activeSortType === sortTypes.SORT_PLAYS
+      activeSort: activeSortType === sortTypes.SORT_PLAYS,
+      title: attributes.PLAYBACK
     },
     {
       className: 'fa fa-heart',
       count: likes_count,
-      activeSort: activeSortType === sortTypes.SORT_FAVORITES
+      activeSort: activeSortType === sortTypes.SORT_FAVORITES,
+      title: attributes.LIKES
     },
     {
       className: 'fa fa-retweet',
       count: reposts_count,
-      activeSort: activeSortType === sortTypes.SORT_REPOSTS
+      activeSort: activeSortType === sortTypes.SORT_REPOSTS,
+      title: attributes.REPOST
     },
     {
       className: 'fa fa-comment',
-      count: comment_count
+      count: comment_count,
+      title: attributes.COMMENTS
     },
     {
       className: 'fa fa-download',
-      count: download_count
+      count: download_count,
+      title: attributes.DOWNLOADS
     }
   ];
 
@@ -109,14 +128,20 @@ function TrackStream({
           <div>
             <TrackIcon trackCount={typeTracks[activity.id]} />
             <RepostIcon repostCount={typeReposts[activity.id]} />
-            <Permalink link={userEntity.permalink_url} text={username} />&nbsp;-&nbsp;
-            <Permalink link={permalink_url} text={title} />
+            <Permalink link={userEntity.permalink_url} text={username} openInNewTab />
+              &nbsp;&#8209;&nbsp;
+            <Permalink link={permalink_url} text={title} openInNewTab />
           </div>
           <div>
             <Duration
               duration={duration}
               isActive={activeDurationFilterType !== filterTypes.ALL}
-            /> / {fromNow(created_at)}</div>
+            /> /
+            <Created
+              created_at={created_at}
+              isActive={activeDateSortType !== dateSortTypes.NONE}
+            />
+            </div>
         </div>
         <div className="track-content-footer">
           <div>
@@ -152,6 +177,7 @@ TrackStream.propTypes = {
   isPlaying: PropTypes.bool,
   activeTrackId: PropTypes.number,
   activeSortType: PropTypes.string,
+  activeDateSortType: PropTypes.string,
   activeDurationFilterType: PropTypes.string,
   onActivateTrack: PropTypes.func,
 };

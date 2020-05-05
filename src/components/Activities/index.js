@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import map from '../../services/map';
-import filter from 'lodash/fp/filter';
 import withFetchOnScroll from '../../components/withFetchOnScroll';
 import withLoadingSpinner from '../../components/withLoadingSpinner';
 import TrackExtension from '../../components/TrackExtension';
@@ -28,11 +27,12 @@ function Activities({
   entities,
   activeFilter,
   activeSort,
+  activeDateSort
 }) {
   const matchedEntities = getMatchedEntities(ids, entities);
-  const filteredEntities = filter(activeFilter, matchedEntities);
-  const sortedEntities = activeSort(filteredEntities);
-
+  const filteredEntities = matchedEntities.filter(activeFilter);
+  const sortedDateEntities = activeDateSort(filteredEntities);
+  const sortedEntities = activeSort(sortedDateEntities);
   return (
     <div>
       <div>
@@ -52,6 +52,7 @@ Activities.propTypes = {
   entities: PropTypes.object,
   activeFilter: PropTypes.func,
   activeSort: PropTypes.func,
+  activeDateSort: PropTypes.func,
 };
 
 export default withLoadingSpinner(withFetchOnScroll(Activities));
